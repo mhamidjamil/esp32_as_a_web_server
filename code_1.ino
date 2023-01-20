@@ -1,8 +1,14 @@
+// text box is reciving msg in separate function i can perform actions on that
+// string
+
 #include <WiFi.h>
 
 // Replace with your network credentials
-const char *ssid = "Revenant";
-const char *password = "12345678";
+// const char *ssid = "Revenant";
+// const char *password = "12345678";
+
+const char *ssid = "Bhatti Hostel(1F)2.4GHz";
+const char *password = "123456677";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -24,6 +30,8 @@ unsigned long currentTime = millis();
 unsigned long previousTime = 0;
 // Define timeout time in milliseconds (example: 2000ms = 2s)
 const long timeoutTime = 2000;
+
+void inputManager(String input_);
 
 void setup() {
   Serial.begin(115200);
@@ -66,6 +74,7 @@ void loop() {
       if (client.available()) { // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
         Serial.write(c);        // print it out the serial monitor
+
         header += c;
         if (c == '\n') { // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a
@@ -140,10 +149,13 @@ void loop() {
               client.println("<p><a href=\"/27/off\"><button class=\"button "
                              "button2\">OFF</button></a></p>");
             }
-            client.println("<form action=" / text " method=" post ">");
-            client.println("<input type=" text " name=" text ">");
-            client.println("<input type=" submit " value=" Submit ">");
+            // now page will take input from user in a text field and send it
+            // to the server
+            client.println("<form action=\"/\" method=\"GET\">");
+            client.println("<input type=\"text\" name=\"input\">");
+            client.println("<input type=\"submit\" value=\"Submit\">");
             client.println("</form>");
+
             client.println("</body></html>");
 
             // The HTTP response ends with another blank line
@@ -151,6 +163,7 @@ void loop() {
             // Break out of the while loop
             break;
           } else { // if you got a newline, then clear currentLine
+            inputManager(currentLine);
             currentLine = "";
           }
         } else if (c != '\r') { // if you got anything else but a carriage
@@ -165,5 +178,14 @@ void loop() {
     client.stop();
     Serial.println("Client disconnected.");
     Serial.println("");
+  }
+}
+void inputManager(String input_) {
+  // print input
+  //   if it is GET request then print otherwise ignore it
+  if (input_.indexOf("GET") >= 0) {
+    input_ = input_.substring(input_.indexOf("input=") + 4);
+    input_ = input_.substring(0, input_.indexOf("HTTP") - 1);
+    Serial.println("--->  input is : " + input_ + "   <---");
   }
 }
